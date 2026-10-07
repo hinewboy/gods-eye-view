@@ -31,6 +31,16 @@ jobs:
         run: npm ci
       - name: Build static bundle with Pages base path
         run: npm run build -- --base=/gods-eye-view/
+      - name: Fix Cesium asset location
+        # vite-plugin-cesium copies its runtime under <dist>/<base>/cesium when a
+        # non-root base is used, while index.html references <base>/cesium.
+        run: |
+          if [ -d dist/gods-eye-view/cesium ]; then
+            mv dist/gods-eye-view/cesium dist/cesium
+            rmdir dist/gods-eye-view 2>/dev/null || true
+          fi
+          test -f dist/cesium/Cesium.js
+          test -f dist/cesium/Widgets/widgets.css
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
